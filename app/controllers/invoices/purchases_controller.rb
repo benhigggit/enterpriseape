@@ -1,5 +1,5 @@
-class PurchasesController < ApplicationController
-  before_action :set_purchase, only: [:show, :edit, :update, :destroy]
+class Invoices::PurchasesController < ApplicationController
+  
 
   respond_to :html
 
@@ -13,17 +13,20 @@ class PurchasesController < ApplicationController
   end
 
   def new
+    @invoice = Invoice.find(params[:invoice_id])
     @purchase = Purchase.new
-    respond_with(@purchase)
   end
 
   def edit
   end
 
   def create
+    @invoice = Invoice.find(params[:invoice_id])
     @purchase = Purchase.new(purchase_params)
+    @purchase.invoice = @invoice
+    
     @purchase.save
-    respond_with(@purchase)
+    respond_with(@invoice)
   end
 
   def update
@@ -32,8 +35,17 @@ class PurchasesController < ApplicationController
   end
 
   def destroy
-    @purchase.destroy
-    respond_with(@purchase)
+    @invoice = Invoice.find(params[:invoice_id])
+    @purchase = Purchase.find(params[:id])
+    title = @purchase.name
+    
+    if @purchase.destroy
+      flash[:notice] = "\"#{title}\" has been deleted successfully."
+      redirect_to @invoice
+    else
+      flash[:error] = "There was an error deleting the purchase."
+      render :show
+    end
   end
 
   private
